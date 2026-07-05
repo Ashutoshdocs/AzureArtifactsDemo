@@ -1,6 +1,7 @@
-from calculator import *
+from setuptools import setup
 
-print("Addition =", add(10,5))
-print("Subtraction =", subtract(10,5))
-print("Multiplication =", multiply(10,5))
-print("Division =", divide(10,5))
+setup(
+    name="azurecalculator",
+    version="1.0.0",
+    py_modules=["calculator"]
+)
