@@ -39,7 +39,7 @@ steps:
     echo $(AZURE_DEVOPS_EXT_PAT) | az devops login
 
     az artifacts universal publish \
-      --organization https://dev.azure.com/<organization> \
+      --organization https://dev.azure.com/akparashar9597 \
       --project Artifacts-Demo \
       --feed python-feed \
       --name pythonapp \
