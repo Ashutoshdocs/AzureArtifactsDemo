@@ -9,42 +9,66 @@ variables:
 
 steps:
 
+# Checkout repository
 - checkout: self
 
+# Install Python
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.11'
+  displayName: 'Use Python 3.11'
 
+# Install dependencies
 - script: |
+    python -m pip install --upgrade pip
     pip install -r requirements.txt
-  displayName: Install Packages
+  displayName: 'Install Packages'
 
+# Create package folder
 - script: |
     mkdir output
     cp app.py output/
     cp requirements.txt output/
-    cd output
-    zip -r app.zip .
-  displayName: Create ZIP
+  displayName: 'Prepare Package'
 
+# Install Azure CLI (hosted Ubuntu agents usually already have it,
+# but keeping this for learning purposes)
 - script: |
     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-  displayName: Install Azure CLI
+  displayName: 'Install Azure CLI'
 
+# Install or update Azure DevOps extension
 - script: |
-    az extension add --name azure-devops
-  displayName: Install Azure DevOps Extension
+    az extension add --name azure-devops --yes || true
+    az extension update --name azure-devops
+  displayName: 'Install Azure DevOps Extension'
 
+# Publish Universal Package
 - script: |
-    echo $(AZURE_DEVOPS_EXT_PAT) | az devops login
+
+    echo "Logging into Azure DevOps..."
+
+    echo "$(AZURE_DEVOPS_EXT_PAT)" | az devops login
+
+    echo "Configuring defaults..."
+
+    az devops configure --defaults \
+      organization=https://dev.azure.com/akparashar9597 \
+      project=Artifacts-Demo
+
+    echo "Publishing package..."
 
     az artifacts universal publish \
       --organization https://dev.azure.com/akparashar9597 \
+      --scope project \
       --project Artifacts-Demo \
       --feed python-feed \
       --name pythonapp \
       --version 1.0.$(Build.BuildId) \
+      --description "Python Application" \
       --path output
+
   env:
     AZURE_DEVOPS_EXT_PAT: $(AZURE_DEVOPS_EXT_PAT)
-  displayName: Publish to Azure Artifacts
+
+  displayName: 'Publish Universal Package'
