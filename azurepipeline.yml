@@ -1,1 +1,50 @@
+trigger:
+- main
 
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- group: ArtifactsSecrets
+
+steps:
+
+- checkout: self
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.11'
+
+- script: |
+    pip install -r requirements.txt
+  displayName: Install Packages
+
+- script: |
+    mkdir output
+    cp app.py output/
+    cp requirements.txt output/
+    cd output
+    zip -r app.zip .
+  displayName: Create ZIP
+
+- script: |
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+  displayName: Install Azure CLI
+
+- script: |
+    az extension add --name azure-devops
+  displayName: Install Azure DevOps Extension
+
+- script: |
+    echo $(AZURE_DEVOPS_EXT_PAT) | az devops login
+
+    az artifacts universal publish \
+      --organization https://dev.azure.com/<organization> \
+      --project Artifacts-Demo \
+      --feed python-feed \
+      --name pythonapp \
+      --version 1.0.$(Build.BuildId) \
+      --path output
+  env:
+    AZURE_DEVOPS_EXT_PAT: $(AZURE_DEVOPS_EXT_PAT)
+  displayName: Publish to Azure Artifacts
