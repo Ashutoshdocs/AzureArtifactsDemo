@@ -30,14 +30,14 @@ steps:
 
     az devops configure --defaults \
       organization=https://dev.azure.com/akparashar9597 \
-      project=Artifacts-Demo
+      project=Artifacts-Demo1
 
     echo "Downloading package..."
 
     az artifacts universal download \
       --organization https://dev.azure.com/akparashar9597 \
       --scope project \
-      --project Artifacts-Demo \
+      --project Artifacts-Demo1 \
       --feed python-feed \
       --name pythonapp \
       --version "*" \
