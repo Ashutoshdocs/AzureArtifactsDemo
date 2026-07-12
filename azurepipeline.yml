@@ -62,7 +62,7 @@ steps:
       --organization https://dev.azure.com/akparashar9597 \
       --scope project \
       --project Artifacts-Demo1 \
-      --feed python-feed \
+      --feed PythonFeed \
       --name pythonapp \
       --version 1.0.$(Build.BuildId) \
       --description "Python Application" \
